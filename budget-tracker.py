@@ -1,5 +1,6 @@
 import os
 import csv
+import math
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 
@@ -10,10 +11,11 @@ DEPOSIT_AMOUNT = os.getenv('DEPOSIT_AMOUNT')
 DEPOSIT_FREQUENCY_WEEKS = os.getenv('DEPOSIT_FREQUENCY_WEEKS')
 
 MENU_OPTIONS = ['Check Balance (default)', 'Withdrawl']
+CONFIRM_OPTIONS = ['Cancel (default)', 'Confirm']
 WITHDRAWL_FILE_NAME = 'withdrawls.csv'
 
-def printMenuOptions():
-    for index, option in enumerate(MENU_OPTIONS):
+def printOptions(options):
+    for index, option in enumerate(options):
         print(f"[{index + 1}] - {option}")
 
 def getSelection():
@@ -51,12 +53,43 @@ def checkBalance():
     withdrawlTotal = getWithdrawlTotal()
     totalDeposited = getTotalDeposited()
     balance = totalDeposited - withdrawlTotal
-    print('Current Balance: $' + "%.2f" % balance)
+    print('Current Balance: $%.2f' % balance)
     return balance
 
 def withdrawlFromBalance():
     amount = input("Amount to withdrawl: ")
+
+    # convert amount to 2 decimal places and float / validate
+    try:
+        amount = math.ceil(float(amount) * 100) / 100
+        if amount < 0.01:
+            raise Exception
+    except Exception:
+        print('The amount entered is not valid')
+        return
+
+    balance = checkBalance()
+    print('Attempting to withdrawl: $%.2f' % amount)
+
+    if balance < amount:
+        print('Insufficient balance to make this withdrawl')
+        return
+    
+    printOptions(CONFIRM_OPTIONS)
+    confirm = getSelection()
+
+    if confirm == 1:
+        print('Transaction aborted')
+        return
+
+    
     # if .csv does not exist create one
+    with open(WITHDRAWL_FILE_NAME, 'w+') as data:
+        file = csv.reader(data)
+
+        if balance < amount:
+            return
+
     # check if withdrawl amount is valid / balance is enough
     # add withdrawl to .csv
     # display remaining balance
@@ -66,7 +99,7 @@ def withdrawlFromBalance():
 # MAIN #
 ########
 if __name__ == "__main__":
-    printMenuOptions()
+    printOptions(MENU_OPTIONS)
     option = getSelection()
 
     if option == 1: checkBalance()
