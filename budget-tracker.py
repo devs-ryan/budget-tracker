@@ -82,18 +82,12 @@ def withdrawlFromBalance():
         print('Transaction aborted')
         return
 
-    
     # if .csv does not exist create one
-    with open(WITHDRAWL_FILE_NAME, 'w+') as data:
-        file = csv.reader(data)
+    with open(WITHDRAWL_FILE_NAME, 'a+') as data:
+        fileWriter = csv.writer(data)
+        fileWriter.writerow([datetime.today().date(), amount])
 
-        if balance < amount:
-            return
-
-    # check if withdrawl amount is valid / balance is enough
-    # add withdrawl to .csv
-    # display remaining balance
-    return 'todo'
+    print('Withdrawl successful, remaining balance: $%.2f' % (balance - amount))
 
 ########
 # MAIN #
