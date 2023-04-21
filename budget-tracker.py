@@ -10,7 +10,7 @@ START_DATE = os.getenv('START_DATE')
 DEPOSIT_AMOUNT = os.getenv('DEPOSIT_AMOUNT')
 DEPOSIT_FREQUENCY_WEEKS = os.getenv('DEPOSIT_FREQUENCY_WEEKS')
 
-MENU_OPTIONS = ['Check Balance (default)', 'Withdrawl']
+MENU_OPTIONS = ['Check Balance (default)', 'Withdrawl', 'Next Deposit Date']
 CONFIRM_OPTIONS = ['Cancel (default)', 'Confirm']
 WITHDRAWL_FILE_NAME = 'withdrawls.csv'
 
@@ -18,10 +18,12 @@ def printOptions(options):
     for index, option in enumerate(options):
         print(f"[{index + 1}] - {option}")
 
-def getSelection():
+def getSelection(max):
+    print('=========')
     option = input("Choice: ")
-    if option == '2':
-        return 2
+    print('=========')
+    if option.isdigit() and int(option) <= max:
+        return int(option)
     return 1
 
 def getWithdrawlTotal():
@@ -40,14 +42,21 @@ def getTotalDeposited():
     d1 = datetime(startDate[0], startDate[1], startDate[2])
     d2 = datetime.now()
 
-    monday1 = (d1 - timedelta(days=d1.weekday()))
-    monday2 = (d2 - timedelta(days=d2.weekday()))
-
-    weeks = (monday2 - monday1).days / 7
-    depositWeeks = weeks / int(DEPOSIT_FREQUENCY_WEEKS)
+    weeks = (d2 - d1).days / 7
+    depositWeeks = math.floor(weeks) / int(DEPOSIT_FREQUENCY_WEEKS)
 
     return depositWeeks * int(DEPOSIT_AMOUNT)
 
+def getNextDepositDate():
+    startDate = list(map(int, START_DATE.split('-')))
+    d1 = datetime(startDate[0], startDate[1], startDate[2])
+    d2 = datetime.now()
+
+    daysUntilNextDeposit = 7 - ((d2 - d1).days % 7)
+    nextDepositDate = (d2 + timedelta(daysUntilNextDeposit)).strftime('%m/%d/%Y')
+
+    print('Deposit Date:', nextDepositDate)
+    print('Days until next deposit: %d' % daysUntilNextDeposit)
 
 def checkBalance():
     withdrawlTotal = getWithdrawlTotal()
@@ -76,7 +85,7 @@ def withdrawlFromBalance():
         return
     
     printOptions(CONFIRM_OPTIONS)
-    confirm = getSelection()
+    confirm = getSelection(2)
 
     if confirm == 1:
         print('Transaction aborted')
@@ -94,7 +103,8 @@ def withdrawlFromBalance():
 ########
 if __name__ == "__main__":
     printOptions(MENU_OPTIONS)
-    option = getSelection()
+    option = getSelection(3)
 
-    if option == 1: checkBalance()
-    else: withdrawlFromBalance()
+    if option == 2: withdrawlFromBalance()
+    if option == 3: getNextDepositDate()
+    else: checkBalance()
