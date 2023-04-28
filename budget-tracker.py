@@ -82,10 +82,12 @@ def withdrawlFromBalance():
 
     if balance < amount:
         print('Insufficient balance to make this withdrawl')
-        return
-    
-    printOptions(CONFIRM_OPTIONS)
-    confirm = getSelection(2)
+        print('Allow a negative balance?')
+        printOptions(CONFIRM_OPTIONS)
+        confirm = getSelection(2)
+    else:
+        printOptions(CONFIRM_OPTIONS)
+        confirm = getSelection(2)
 
     if confirm == 1:
         print('Transaction aborted')
@@ -106,5 +108,5 @@ if __name__ == "__main__":
     option = getSelection(3)
 
     if option == 2: withdrawlFromBalance()
-    if option == 3: getNextDepositDate()
+    elif option == 3: getNextDepositDate()
     else: checkBalance()
