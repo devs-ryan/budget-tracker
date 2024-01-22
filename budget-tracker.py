@@ -55,14 +55,17 @@ def getNextDepositDate():
     daysUntilNextDeposit = 7 - ((d2 - d1).days % 7)
     nextDepositDate = (d2 + timedelta(daysUntilNextDeposit)).strftime('%m/%d/%Y')
 
+    checkBalance()
     print('Deposit Date:', nextDepositDate)
+    print('Deposit Amount: $%.2f' % (int(DEPOSIT_AMOUNT) / 2))
     print('Days until next deposit: %d' % daysUntilNextDeposit)
 
-def checkBalance():
+def checkBalance(display = True):
     withdrawlTotal = getWithdrawlTotal()
     totalDeposited = getTotalDeposited()
     balance = totalDeposited - withdrawlTotal
-    print('Current Balance: $%.2f' % balance)
+    if display:
+        print('Current Balance: $%.2f' % balance)
     return balance
 
 def withdrawlFromBalance():
@@ -92,11 +95,13 @@ def withdrawlFromBalance():
     if confirm == 1:
         print('Transaction aborted')
         return
+    
+    comment = input("Enter a comment (optional): ")
 
     # if .csv does not exist create one
     with open(WITHDRAWL_FILE_NAME, 'a+') as data:
         fileWriter = csv.writer(data)
-        fileWriter.writerow([datetime.today().date(), amount])
+        fileWriter.writerow([datetime.today().date(), amount, comment])
 
     print('Withdrawl successful, remaining balance: $%.2f' % (balance - amount))
 
